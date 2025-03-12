@@ -47,7 +47,6 @@
       border-radius: 50%;
       background: radial-gradient(circle at 30% 30%, #fff, #A2E1FF);
       box-shadow: 0 0 20px 5px rgba(255,255,255,0.6);
-      transition: all 0.3s ease;
     }
     .star {
       position: absolute;
@@ -76,7 +75,6 @@
       background-position: center;
       background-size: contain;
       animation: floatClouds 60s linear infinite;
-      transition: all 0.3s ease;
     }
     @keyframes floatClouds {
       0% { transform: translateX(0); }
@@ -133,7 +131,7 @@
       cursor: pointer;
       z-index: 10;
       overflow: hidden;
-      transition: transform 0.3s ease, box-shadow 0.3s ease, width 0.3s ease, height 0.3s ease;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
     .parallax-layer {
       position: absolute;
@@ -192,10 +190,8 @@
       box-shadow: 300px 200px 100px rgba(0, 0, 0, 0.4) inset;
     }
     .card .imgBox img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: filter 0.3s ease;
+      min-width: 250px;
+      max-height: 400px;
     }
     .card .details {
       position: absolute;
@@ -203,35 +199,35 @@
       left: 0;
       box-sizing: border-box;
       padding: 0 10px;
+      max-width: 280px;
       z-index: -1;
       margin-top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
     }
     .card .details h4 {
       text-align: center;
       margin: 20px 0;
-      transition: font-size 0.3s ease, margin 0.3s ease;
     }
     .card .details h4:last-of-type {
-      margin-top: 20px;
+      margin-top: 20;
     }
     .card .details p {
       font-size: 15px;
-      line-height: 20px;
+      line-height: 10px;
       transform: rotate(-10deg);
       padding: 0 0 0 35px;
-      transition: font-size 0.3s ease, line-height 0.3s ease, padding 0.3s ease;
     }
     .text-right {
       text-align: right;
     }
 
-    /* Card hover effects */
+    /* ENHANCEMENT 6: Card hover effects */
     .card:hover {
       transform: translateY(-5px) scale(1.02);
       box-shadow: inset 300px 0 50px rgba(0,0,0,0.5), 20px 10px 70px rgba(126, 212, 255, 0.3);
+    }
+    
+    .card .imgBox img {
+      transition: filter 0.3s ease;
     }
     
     .card:hover .imgBox img {
@@ -246,7 +242,7 @@
       color: #A2E1FF;
     }
     
-    /* Mobile responsiveness - Fixed and improved */
+    /* ENHANCEMENT 9: Mobile responsiveness */
     @media (max-width: 768px) {
       body {
         align-items: center;
@@ -262,13 +258,7 @@
       
       .card .details p {
         font-size: 14px;
-        line-height: 18px;
-        padding: 0 0 0 30px;
-      }
-      
-      h4 {
-        font-size: 24px;
-        margin: 15px 0;
+        line-height: 9px;
       }
       
       .moon {
@@ -287,18 +277,15 @@
       
       .card .details p {
         font-size: 13px;
-        line-height: 16px;
+        line-height: 8px;
         padding: 0 0 0 25px;
       }
       
       h4 {
         font-size: 22px;
-        margin: 12px 0;
       }
       
       .moon {
-        top: 30px;
-        right: 30px;
         width: 50px;
         height: 50px;
       }
@@ -306,40 +293,8 @@
 
     @media (max-height: 500px) {
       .card {
-        height: 280px;
-        width: 220px;
-      }
-      
-      .card .details p {
-        font-size: 12px;
-        line-height: 14px;
-        padding: 0 0 0 20px;
-      }
-      
-      h4 {
-        font-size: 20px;
-        margin: 10px 0;
-      }
-      
-      .moon {
-        top: 20px;
-        right: 20px;
-        width: 40px;
-        height: 40px;
-      }
-    }
-
-    /* Fix for very small devices */
-    @media (max-width: 320px) {
-      .card {
-        width: 240px;
         height: 320px;
-      }
-      
-      .card .details p {
-        font-size: 12px;
-        line-height: 14px;
-        padding: 0 0 0 20px;
+        width: 240px;
       }
     }
   </style>
@@ -429,17 +384,14 @@
         cardOpenSound.play();
         if (!musicPlayed) {
           setTimeout(() => {
-            backgroundMusic.play().catch(e => {
-              console.log("Audio play prevented by browser: ", e);
-              // Many browsers require user interaction for audio to play
-            });
+            backgroundMusic.play();
             musicPlayed = true;
           }, 500); // Slight delay for the sound effect to begin
         }
       } else {
         // Card is being closed
         cardCloseSound.currentTime = 0;
-        cardCloseSound.play().catch(e => console.log("Audio play prevented: ", e));
+        cardCloseSound.play();
       }
     });
 
@@ -452,25 +404,10 @@
       });
     });
 
-    // Handle touch events for mobile parallax effect
-    document.addEventListener('touchmove', (e) => {
-      if (e.touches.length > 0) {
-        const touch = e.touches[0];
-        const xPos = touch.clientX / window.innerWidth;
-        const yPos = touch.clientY / window.innerHeight;
-        const speeds = [-10, -5, -2]; // Reduced speeds for touch
-        layers.forEach((layer, i) => {
-          layer.style.transform = `translate(${xPos * speeds[i]}px, ${yPos * speeds[i]}px)`;
-        });
-      }
-    }, { passive: true });
-
     // Generate static stars with smaller sizes.
     function generateStars() {
       const fragment = document.createDocumentFragment();
-      const starCount = window.innerWidth < 768 ? 100 : 200; // Fewer stars on mobile
-      
-      for (let i = 0; i < starCount; i++) {
+      for (let i = 0; i < 200; i++) {
         const star = document.createElement('div');
         star.className = 'star';
         star.style.left = `${Math.random() * 100}%`;
@@ -484,21 +421,14 @@
       starsContainer.appendChild(fragment);
     }
 
-    // Generate clouds based on screen size
+    // Generate exactly 7 clouds evenly distributed horizontally.
     function generateClouds() {
-      const windowWidth = window.innerWidth;
-      // Adjust number of clouds based on screen width
-      const numClouds = windowWidth < 480 ? 3 : (windowWidth < 768 ? 5 : 7);
-      
+      const numClouds = 7;
       const cloudImages = [
         "https://i.imgur.com/8wAZumX.png",
         "https://i.imgur.com/m2TqCZK.png",
         "https://i.imgur.com/wUMVaJc.png"
       ];
-      
-      // Clear existing clouds
-      cloudsContainer.innerHTML = '';
-      
       for (let i = 0; i < numClouds; i++) {
         const cloud = document.createElement('div');
         cloud.classList.add('cloud');
@@ -507,31 +437,16 @@
         // Apply a stronger blue tint and decreased opacity.
         cloud.style.filter = 'brightness(1.2) saturate(5) hue-rotate(210deg)';
         cloud.style.opacity = '0.1';
-        
-        // Size based on screen width
-        let width, height;
-        if (windowWidth < 480) {
-          width = 300;
-          height = 225;
-        } else if (windowWidth < 768) {
-          width = 600;
-          height = 450;
-        } else {
-          width = 1000;
-          height = 750;
-        }
-        
+        // Bigger fixed base size.
+        const width = 1000;
+        const height = 750;
         cloud.style.width = `${width}px`;
         cloud.style.height = `${height}px`;
-        
         // Evenly distribute horizontally and center each cloud.
         const horizontalPos = (i / (numClouds - 1)) * 100;
         cloud.style.left = `calc(${horizontalPos}% - ${width/2}px)`;
-        
-        // Position so that the cloud's center is at appropriate height from top.
-        const topPos = windowWidth < 480 ? 50 : (windowWidth < 768 ? 75 : 100);
-        cloud.style.top = `${topPos - height/2}px`;
-        
+        // Position so that the cloud's center is at 150px from top.
+        cloud.style.top = `${100 - height/2}px`;
         cloud.style.animationDelay = `${Math.random() * 5}s`;
         cloudsContainer.appendChild(cloud);
       }
@@ -540,21 +455,14 @@
     // Generate grass blades.
     function generateGrass() {
       const fragment = document.createDocumentFragment();
-      const windowWidth = window.innerWidth;
-      const bladeCount = windowWidth < 480 ? 60 : (windowWidth < 768 ? 90 : 120);
-      
-      for (let i = 0; i < bladeCount; i++) {
+      for (let i = 0; i < 120; i++) {
         const grass = document.createElement('div');
         grass.classList.add('grass');
         const left = Math.random() * 100;
-        
-        // Adjust height based on screen size
-        const maxHeight = windowWidth < 480 ? 40 : (windowWidth < 768 ? 60 : 80);
-        const height = 40 + Math.random() * maxHeight;
-        
+        const height = 60 + Math.random() * 80;
         grass.style.left = `${left}%`;
         grass.style.height = `${height}px`;
-        grass.style.width = `${1 + Math.random() * 5}px`;
+        grass.style.width = `${2 + Math.random() * 6}px`;
         grass.style.animation = `bendAndSway ${4 + Math.random() * 3}s ease-in-out ${Math.random() * 2}s infinite alternate`;
         fragment.appendChild(grass);
       }
@@ -564,10 +472,7 @@
     // Generate fireflies with a light blue tint.
     function generateFireflies() {
       const fragment = document.createDocumentFragment();
-      const windowWidth = window.innerWidth;
-      const fireflyCount = windowWidth < 480 ? 20 : (windowWidth < 768 ? 35 : 50);
-      
-      for (let i = 0; i < fireflyCount; i++) {
+      for (let i = 0; i < 50; i++) {
         const firefly = document.createElement('div');
         firefly.classList.add('firefly');
         firefly.style.left = `${Math.random() * 100}%`;
@@ -578,66 +483,42 @@
       firefliesContainer.appendChild(fragment);
     }
 
-    // Improved resize handler
+    // ENHANCEMENT 9: Mobile responsiveness additional handler
     function handleResize() {
+      // Adjust element placement based on screen size
       const windowWidth = window.innerWidth;
       const windowHeight = window.innerHeight;
       
-      // Regenerate elements based on new screen size
-      cloudsContainer.innerHTML = '';
-      grassContainer.innerHTML = '';
-      firefliesContainer.innerHTML = '';
+      // Reduce cloud size on smaller screens
+      const cloudElements = document.querySelectorAll('.cloud');
+      cloudElements.forEach(cloud => {
+        if (windowWidth < 768) {
+          cloud.style.width = '800px';
+          cloud.style.height = '600px';
+        } else {
+          cloud.style.width = '1000px';
+          cloud.style.height = '750px';
+        }
+      });
       
-      generateClouds();
-      generateGrass();
-      generateFireflies();
-      
-      // Adjust moon position
+      // Adjust moon position on mobile
       const moon = document.querySelector('.moon');
       if (windowWidth < 480) {
         moon.style.right = '30px';
-        moon.style.top = '30px';
-      } else if (windowWidth < 768) {
-        moon.style.right = '40px';
-        moon.style.top = '40px';
       } else {
         moon.style.right = '100px';
-        moon.style.top = '60px';
-      }
-      
-      // Ensure proper card centering
-      if (windowHeight < 500) {
-        document.body.style.alignItems = 'center';
-        document.body.style.paddingTop = '0';
-      } else {
-        document.body.style.alignItems = 'center';
-        document.body.style.paddingTop = '0';
       }
     }
 
-    // Initialize on load and handle viewport changes
     window.addEventListener('load', function() {
       generateStars();
       generateClouds();
       generateGrass();
       generateFireflies();
       handleResize(); // Initial call for responsive adjustments
-      
-      // Force a reflow to apply initial styles correctly
-      setTimeout(handleResize, 100);
     });
     
-    // Debounce resize to improve performance
-    let resizeTimeout;
-    window.addEventListener('resize', function() {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(handleResize, 250);
-    });
-    
-    // Handle orientation change explicitly for mobile devices
-    window.addEventListener('orientationchange', function() {
-      setTimeout(handleResize, 300);
-    });
+    window.addEventListener('resize', handleResize);
   </script>
 </body>
 </html>
