@@ -131,6 +131,7 @@
       cursor: pointer;
       z-index: 10;
       overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
     .parallax-layer {
       position: absolute;
@@ -219,8 +220,83 @@
       text-align: right;
     }
 
-    /* Remove shooting stars container */
-    /* The shooting stars have been removed completely */
+    /* ENHANCEMENT 6: Card hover effects */
+    .card:hover {
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: inset 300px 0 50px rgba(0,0,0,0.5), 20px 10px 70px rgba(126, 212, 255, 0.3);
+    }
+    
+    .card .imgBox img {
+      transition: filter 0.3s ease;
+    }
+    
+    .card:hover .imgBox img {
+      filter: brightness(1.1) saturate(1.2);
+    }
+    
+    .card .details p {
+      transition: transform 0.3s ease, color 0.3s ease;
+    }
+    
+    .card:hover .details p {
+      color: #A2E1FF;
+    }
+    
+    /* ENHANCEMENT 9: Mobile responsiveness */
+    @media (max-width: 768px) {
+      body {
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+      
+      .card {
+        width: 280px;
+        height: 380px;
+        margin: 0 auto;
+      }
+      
+      .card .details p {
+        font-size: 14px;
+        line-height: 9px;
+      }
+      
+      .moon {
+        top: 40px;
+        right: 40px;
+        width: 60px;
+        height: 60px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .card {
+        width: 260px;
+        height: 360px;
+      }
+      
+      .card .details p {
+        font-size: 13px;
+        line-height: 8px;
+        padding: 0 0 0 25px;
+      }
+      
+      h4 {
+        font-size: 22px;
+      }
+      
+      .moon {
+        width: 50px;
+        height: 50px;
+      }
+    }
+
+    @media (max-height: 500px) {
+      .card {
+        height: 320px;
+        width: 240px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -267,14 +343,23 @@
   <div class="retro-overlay"></div>
   <div class="grain"></div>
 
+  <!-- ENHANCEMENT 5: Card opening sound effects -->
   <audio id="background-music" loop>
     <source src="https://github.com/venti-latte/scrolldownmp3/raw/refs/heads/main/spotidownloader.com%20-%20Rearrange%20My%20World%20-%20Daniel%20Caesar%20(1).mp3" type="audio/mpeg">
+  </audio>
+  <audio id="card-open-sound">
+    <source src="https://example.com/card-open-sound.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="card-close-sound">
+    <source src="https://example.com/card-close-sound.mp3" type="audio/mpeg">
   </audio>
 
   <script>
     // Basic setup for card, parallax, stars, clouds, grass, and fireflies.
     const card = document.querySelector('.card');
     const backgroundMusic = document.getElementById("background-music");
+    const cardOpenSound = document.getElementById("card-open-sound");
+    const cardCloseSound = document.getElementById("card-close-sound");
     const grassContainer = document.getElementById('grass-container');
     const firefliesContainer = document.getElementById('fireflies-container');
     const starsContainer = document.getElementById('stars-container');
@@ -286,12 +371,27 @@
     ];
     let musicPlayed = false;
     backgroundMusic.volume = 0.05;
+    cardOpenSound.volume = 0.3;
+    cardCloseSound.volume = 0.3;
 
     card.addEventListener('click', () => {
+      const wasOpen = card.classList.contains('open');
       card.classList.toggle('open');
-      if (card.classList.contains('open') && !musicPlayed) {
-        backgroundMusic.play();
-        musicPlayed = true;
+      
+      if (!wasOpen) {
+        // Card is being opened
+        cardOpenSound.currentTime = 0;
+        cardOpenSound.play();
+        if (!musicPlayed) {
+          setTimeout(() => {
+            backgroundMusic.play();
+            musicPlayed = true;
+          }, 500); // Slight delay for the sound effect to begin
+        }
+      } else {
+        // Card is being closed
+        cardCloseSound.currentTime = 0;
+        cardCloseSound.play();
       }
     });
 
@@ -383,13 +483,42 @@
       firefliesContainer.appendChild(fragment);
     }
 
+    // ENHANCEMENT 9: Mobile responsiveness additional handler
+    function handleResize() {
+      // Adjust element placement based on screen size
+      const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
+      
+      // Reduce cloud size on smaller screens
+      const cloudElements = document.querySelectorAll('.cloud');
+      cloudElements.forEach(cloud => {
+        if (windowWidth < 768) {
+          cloud.style.width = '800px';
+          cloud.style.height = '600px';
+        } else {
+          cloud.style.width = '1000px';
+          cloud.style.height = '750px';
+        }
+      });
+      
+      // Adjust moon position on mobile
+      const moon = document.querySelector('.moon');
+      if (windowWidth < 480) {
+        moon.style.right = '30px';
+      } else {
+        moon.style.right = '100px';
+      }
+    }
+
     window.addEventListener('load', function() {
       generateStars();
       generateClouds();
       generateGrass();
       generateFireflies();
+      handleResize(); // Initial call for responsive adjustments
     });
+    
+    window.addEventListener('resize', handleResize);
   </script>
 </body>
 </html>
-
